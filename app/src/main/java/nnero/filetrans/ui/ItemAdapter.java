@@ -2,8 +2,10 @@ package nnero.filetrans.ui;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -14,6 +16,8 @@ import nnero.filetrans.R;
 import nnero.filetrans.bean.Dir;
 import nnero.filetrans.bean.Item;
 import nnero.filetrans.bean.NFile;
+import nnero.filetrans.file.FileManager;
+import nnero.filetrans.util.CommonUtil;
 
 /**
  * Created by NNERO on 15/12/1.
@@ -30,7 +34,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    ViewHolder viewHolder = new ViewHolder(View.inflate(mContext, R.layout.item,null));
+
+    ViewHolder viewHolder = new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item,parent,false));
     return viewHolder;
   }
 
@@ -38,12 +43,27 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
   public void onBindViewHolder(ViewHolder holder, int position) {
     if(mItems.get(position).getType() == Item.TYPE_DIR){
       Dir dir = (Dir) mItems.get(position);
+      holder.itemView.setTag(dir);
+      holder.itemView.setOnClickListener(mDirClickListener);
+      holder.iconView.setImageResource(R.drawable.ic_dir);
       holder.nameView.setText(dir.getName());
     } else {
       NFile nFile = (NFile) mItems.get(position);
+      holder.iconView.setImageResource(R.drawable.ic_file);
       holder.nameView.setText(nFile.getName());
     }
   }
+
+  private View.OnClickListener mDirClickListener = new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+      Dir dir = (Dir) v.getTag();
+      mItems.clear();
+      mItems.addAll(FileManager.getInstance().getLevelAllFiles(dir.getPath()));
+      notifyItemRangeChanged(0, mItems.size() - 1);
+      CommonUtil.log("点击");
+    }
+  };
 
   @Override
   public int getItemCount() {
@@ -52,7 +72,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
   static class ViewHolder extends RecyclerView.ViewHolder{
 
+
     @Bind(R.id.item_tv) TextView nameView;
+    @Bind(R.id.icon) ImageView iconView;
 
     public ViewHolder(View itemView) {
       super(itemView);

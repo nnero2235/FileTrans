@@ -15,6 +15,7 @@ import nnero.filetrans.util.CommonUtil;
  * Created by NNERO on 15/12/1.
  */
 public class FileManager {
+  private static final String ROOT = "";
 
   private static FileManager sFileManager;
 
@@ -32,7 +33,7 @@ public class FileManager {
    * @return
    */
   public List<Item> getRootAllFiles(){
-    String path = Environment.getRootDirectory().getAbsolutePath();
+    String path = Environment.getExternalStoragePublicDirectory(ROOT).getAbsolutePath();
     CommonUtil.log(path);
     return getLevelAllFiles(path);
   }
@@ -46,7 +47,7 @@ public class FileManager {
     File file = new File(name);
     if(file.exists()){
       File[] files = file.listFiles();
-      CommonUtil.log(files.length+"");
+//      CommonUtil.log(files.length+"");
       return createItemsByFileArray(files);
     }
     return null;
@@ -55,14 +56,13 @@ public class FileManager {
   private List<Item> createItemsByFileArray(File[] files){
     Dir dir = null;
     NFile nFile = null;
-    List<Item> items = null;
+    List<Item> items = new ArrayList<>();
     for(File file: files){
-      items = new ArrayList<>();
       if(file.isDirectory()){
-        dir = new Dir(file.getName(),file);
+        dir = new Dir(file.getName(),file.getAbsolutePath());
         items.add(dir);
       } else {
-        nFile = new NFile(file.getName(),file);
+        nFile = new NFile(file.getName(),file.getAbsolutePath());
         items.add(nFile);
       }
     }

@@ -8,13 +8,21 @@ import java.io.File;
 public class Dir implements Item {
 
   private String name;
-  private File entity;
+  private String path;
 
   public Dir(){}
 
-  public Dir(String name,File entity){
+  public Dir(String name,String path){
     this.name = name;
-    this.entity = entity;
+    this.path = path;
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
   }
 
   public String getName() {
@@ -25,13 +33,6 @@ public class Dir implements Item {
     this.name = name;
   }
 
-  public File getEntity() {
-    return entity;
-  }
-
-  public void setEntity(File entity) {
-    this.entity = entity;
-  }
 
   @Override
   public int getType() {

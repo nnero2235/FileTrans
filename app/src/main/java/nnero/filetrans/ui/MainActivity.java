@@ -21,6 +21,7 @@ import nnero.filetrans.R;
 import nnero.filetrans.bean.Item;
 import nnero.filetrans.bean.NFile;
 import nnero.filetrans.file.FileManager;
+import nnero.filetrans.util.CommonUtil;
 import nnero.filetrans.views.DirectoryView;
 
 public class MainActivity extends AppCompatActivity {

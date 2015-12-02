@@ -9,13 +9,13 @@ import java.io.File;
 public class NFile implements Item{
 
   private String name;
-  private File entity;
+  private String path;
 
   public NFile(){}
 
-  public NFile(String name,File entity){
+  public NFile(String name,String path){
     this.name = name;
-    this.entity = entity;
+    this.path = path;
   }
 
   public String getName() {
@@ -26,12 +26,13 @@ public class NFile implements Item{
     this.name = name;
   }
 
-  public File getEntity() {
-    return entity;
+
+  public String getPath() {
+    return path;
   }
 
-  public void setEntity(File entity) {
-    this.entity = entity;
+  public void setPath(String path) {
+    this.path = path;
   }
 
   @Override

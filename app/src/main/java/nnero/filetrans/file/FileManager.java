@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import nnero.filetrans.bean.Dir;
@@ -17,7 +18,10 @@ import nnero.filetrans.util.CommonUtil;
 public class FileManager {
   private static final String ROOT = "";
 
+  private static final LinkedList<String> sRecordLevelPaths = new LinkedList<>(); //目录层级 记录
   private static FileManager sFileManager;
+
+  private int mLevel;
 
   private FileManager(){}
 
@@ -34,7 +38,7 @@ public class FileManager {
    */
   public List<Item> getRootAllFiles(){
     String path = Environment.getExternalStoragePublicDirectory(ROOT).getAbsolutePath();
-    CommonUtil.log(path);
+    levelPlus(path);
     return getLevelAllFiles(path);
   }
 
@@ -47,7 +51,6 @@ public class FileManager {
     File file = new File(name);
     if(file.exists()){
       File[] files = file.listFiles();
-//      CommonUtil.log(files.length+"");
       return createItemsByFileArray(files);
     }
     return null;
@@ -68,4 +71,31 @@ public class FileManager {
     }
     return items;
   }
+
+  /**
+   * 返回当前层级
+   * @return
+   */
+  public int getLevel(){
+    return mLevel;
+  }
+
+  public void levelPlus(String path){
+    mLevel++;
+    sRecordLevelPaths.add(path);
+  }
+
+  public void levelReduce(){
+    mLevel--;
+    sRecordLevelPaths.pollLast();
+  }
+
+  /**
+   * 返回上一级目录
+   * @return
+   */
+  public String getLastLevelPath(){
+    return sRecordLevelPaths.getLast();
+  }
+
 }

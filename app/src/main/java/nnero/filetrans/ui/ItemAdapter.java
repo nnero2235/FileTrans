@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -26,16 +27,22 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
   private Activity mContext;
   private List<Item> mItems;
+  private OnLevelChangeListener mLevelListener;
+
 
   public ItemAdapter(Activity activity,List<Item> items){
     this.mContext = activity;
     this.mItems = items;
   }
 
+  public void setOnLevelChangeListener(OnLevelChangeListener l){
+    this.mLevelListener = l;
+  }
+
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-    ViewHolder viewHolder = new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item,parent,false));
+    ViewHolder viewHolder = new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item, parent, false));
     return viewHolder;
   }
 
@@ -58,16 +65,27 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     @Override
     public void onClick(View v) {
       Dir dir = (Dir) v.getTag();
-      mItems.clear();
-      mItems.addAll(FileManager.getInstance().getLevelAllFiles(dir.getPath()));
-      notifyItemRangeChanged(0, mItems.size() - 1);
-      CommonUtil.log("点击");
+      if(mLevelListener != null)
+        mLevelListener.onLevelChange(dir);
+      refreshItems(dir.getPath());
     }
   };
 
   @Override
   public int getItemCount() {
     return mItems.size();
+  }
+
+  private void refreshItems(String path){
+    mItems.clear();
+    mItems.addAll(FileManager.getInstance().getLevelAllFiles(path));
+    notifyDataSetChanged();
+  }
+
+  public void resetLastLevelItems() {
+    String lastPath = FileManager.getInstance().getLastLevelPath();
+    CommonUtil.log(lastPath);
+    refreshItems(lastPath);
   }
 
   static class ViewHolder extends RecyclerView.ViewHolder{
@@ -80,5 +98,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
       super(itemView);
       ButterKnife.bind(this,itemView);
     }
+  }
+
+  public interface OnLevelChangeListener{
+    public void onLevelChange(Item item);
   }
 }

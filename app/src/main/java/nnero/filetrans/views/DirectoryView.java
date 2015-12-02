@@ -86,7 +86,9 @@ public class DirectoryView extends LinearLayout{
     TextView tv = new TextView(getContext());
     tv.setTextSize(mTextSize);
     tv.setTextColor(mTextColor);
+    tv.setSingleLine(true);
     LayoutParams params = new LayoutParams(mItemWidth,mItemHeight);
+    params.setMargins(5,5,5,5);
     tv.setLayoutParams(params);
     tv.setGravity(Gravity.CENTER);
     views.add(tv);
@@ -106,7 +108,8 @@ public class DirectoryView extends LinearLayout{
    * 减掉 目录层级
    */
   public void reduceLevelDir(){
-    removeView(views.pop());
-    removeView(views.pop());
+    removeView(views.pollLast());
+    removeView(views.pollLast());
   }
+
 }

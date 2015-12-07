@@ -1,16 +1,11 @@
 package nnero.filetrans.ui;
 
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,10 +14,10 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import nnero.filetrans.App;
 import nnero.filetrans.R;
 import nnero.filetrans.bean.Dir;
 import nnero.filetrans.bean.Item;
-import nnero.filetrans.bean.NFile;
 import nnero.filetrans.file.FileManager;
 import nnero.filetrans.util.CommonUtil;
 import nnero.filetrans.views.DirectoryView;
@@ -36,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
   private List<Item> mItems;
   private ItemAdapter mItemAdapter;
 
-  private boolean isExit;
+  private long mExitTime;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     initData();
     initViews();
     initListeners();
+    App.calculateItemNumbers(CommonUtil.getScreenHeight(this),toolbar.getHeight(),dirView.getHeight());
   }
 
   private void initData() {
@@ -58,18 +54,21 @@ public class MainActivity extends AppCompatActivity {
     mItemAdapter = new ItemAdapter(this, mItems);
     listView.setItemAnimator(new DefaultItemAnimator());
     listView.setLayoutManager(new LinearLayoutManager(this));
-    listView.addItemDecoration(new ItemDecotation(this, ItemDecotation.VERTICAL_LIST));
+//    listView.addItemDecoration(new ItemDecotation(this, ItemDecotation.VERTICAL_LIST));
     listView.setAdapter(mItemAdapter);
   }
 
   private void initListeners() {
+    dirView.setOnDirClickListener(path -> {
+      mItemAdapter.refreshItems(path);
+    });
     mItemAdapter.setOnLevelChangeListener(item -> {
       if(item.getType() == Item.TYPE_DIR){
         Dir dir = (Dir)item;
         dirView.increaseLevelDir(dir.getName());
         FileManager.getInstance().levelPlus(dir.getPath());
       } else {
-
+        //TODO:support normal files
       }
     });
   }
@@ -91,13 +90,13 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   public void onBackPressed() {
+    CommonUtil.log(FileManager.getInstance().getLevel() + "");
     if(FileManager.getInstance().getLevel() <= 1){ //退出应用
-      if(isExit){
+      if(System.currentTimeMillis() - mExitTime < 2000){
         super.onBackPressed();
       }
-      isExit = true;
+      mExitTime = System.currentTimeMillis();
       CommonUtil.toastOnShort("再按一次退出");
-      new Handler().postDelayed(()->{isExit = false;},2000);
     } else { //退回上一级
       dirView.reduceLevelDir();
       FileManager.getInstance().levelReduce();
@@ -105,4 +104,9 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    FileManager.getInstance().clearInfos();
+  }
 }

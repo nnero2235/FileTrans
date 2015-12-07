@@ -1,5 +1,8 @@
 package nnero.filetrans.util;
 
+import android.app.Activity;
+import android.content.Context;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,6 +26,12 @@ public class CommonUtil {
 
   public static void toastOnLong(String msg){
     Toast.makeText(App.getContext(),msg,Toast.LENGTH_LONG).show();
+  }
+
+  public static int getScreenHeight(Activity activity){
+    DisplayMetrics displayMetrics = new DisplayMetrics();
+    activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+    return displayMetrics.heightPixels;
   }
 }
 

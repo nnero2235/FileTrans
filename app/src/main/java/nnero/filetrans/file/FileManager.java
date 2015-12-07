@@ -98,4 +98,21 @@ public class FileManager {
     return sRecordLevelPaths.getLast();
   }
 
+  public void clearInfos(){
+    mLevel = 0;
+    sRecordLevelPaths.clear();
+  }
+
+  public String getDirByPos(int pos){
+    return sRecordLevelPaths.get(pos);
+  }
+
+  public void clearInfos(int pos){
+    for(int i=mLevel-1;i>pos;i--){
+      sRecordLevelPaths.remove(i);
+    }
+    mLevel = pos+1;
+  }
+
+
 }

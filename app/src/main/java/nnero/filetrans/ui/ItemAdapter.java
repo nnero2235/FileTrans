@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import nnero.filetrans.App;
 import nnero.filetrans.R;
 import nnero.filetrans.bean.Dir;
 import nnero.filetrans.bean.Item;
@@ -28,11 +30,27 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
   private Activity mContext;
   private List<Item> mItems;
   private OnLevelChangeListener mLevelListener;
+//  private boolean isAnimateView; //是否播动画
+  private int lastAnimateViewPos; //上滑的时候不应该播动画
 
 
   public ItemAdapter(Activity activity,List<Item> items){
     this.mContext = activity;
     this.mItems = items;
+    this.lastAnimateViewPos = -1;
+  }
+
+  private void runInAnimation(View v,int pos){
+    if(pos > lastAnimateViewPos && pos < App.getAnimateItemNumbers()) {
+      lastAnimateViewPos = pos;
+      v.setTranslationY(CommonUtil.getScreenHeight(mContext));
+      v.animate()
+              .translationY(0)
+              .setStartDelay(100 * pos)
+              .setInterpolator(new DecelerateInterpolator(3.f))
+              .setDuration(1000)
+              .start();
+    }
   }
 
   public void setOnLevelChangeListener(OnLevelChangeListener l){
@@ -48,6 +66,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
   @Override
   public void onBindViewHolder(ViewHolder holder, int position) {
+    runInAnimation(holder.itemView,position);
     if(mItems.get(position).getType() == Item.TYPE_DIR){
       Dir dir = (Dir) mItems.get(position);
       holder.itemView.setTag(dir);
@@ -58,6 +77,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
       NFile nFile = (NFile) mItems.get(position);
       holder.iconView.setImageResource(R.drawable.ic_file);
       holder.nameView.setText(nFile.getName());
+      holder.itemView.setOnClickListener(null);
     }
   }
 
@@ -76,9 +96,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     return mItems.size();
   }
 
-  private void refreshItems(String path){
+  public void refreshItems(String path){
     mItems.clear();
     mItems.addAll(FileManager.getInstance().getLevelAllFiles(path));
+    lastAnimateViewPos = -1;
     notifyDataSetChanged();
   }
 
@@ -88,7 +109,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     refreshItems(lastPath);
   }
 
-  static class ViewHolder extends RecyclerView.ViewHolder{
+  class ViewHolder extends RecyclerView.ViewHolder{
 
 
     @Bind(R.id.item_tv) TextView nameView;
